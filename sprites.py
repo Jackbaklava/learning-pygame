@@ -1,15 +1,23 @@
 import pygame
-from pygame.locals import (K_UP, K_DOWN, K_RIGHT, K_LEFT)
+from pygame.locals import (K_UP, K_DOWN, K_RIGHT, K_LEFT, RLEACCEL)
 import random as r
 from config import WIDTH, HEIGHT
+
+pygame.mixer.init()
+pygame.mixer.music.load("assets/apoxode_electric.mp3")
+pygame.mixer.music.play(-1)
+sound_move_up = pygame.mixer.Sound("assets/rising_putter.ogg")
+sound_move_down = pygame.mixer.Sound("assets/falling_putter.ogg")
+sound_collision = pygame.mixer.Sound("assets/collision.ogg")
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         # Calls the __init__ method of the parent class
         super().__init__()
         # This surface is displayed on screen
-        self.surf = pygame.Surface((50, 50))
-        self.surf.fill((255, 255, 255))
+        self.surf = pygame.image.load("assets/jet.png").convert()
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         # When you call this method, pygame creates a new rect with the size of the surface and the coordinates 0, 0. To give the rect other coords, parameters like center and topleft can be used
         self.rect = self.surf.get_rect()
 
@@ -18,8 +26,10 @@ class Player(pygame.sprite.Sprite):
         # Note: coordinates start from the top left of the screen
         if pressed_keys[K_UP]:
             self.rect.move_ip(0, -5)
+            sound_move_up.play()
         if pressed_keys[K_DOWN]:
             self.rect.move_ip(0, 5)
+            sound_move_down.play()
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(5, 0)
         if pressed_keys[K_LEFT]:
@@ -41,8 +51,8 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.surf = pygame.Surface((20, 10))
-        self.surf.fill((255, 0, 0))
+        self.surf = pygame.image.load("assets/missile.png").convert()
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect(
             center=(
                 r.randint(WIDTH+20, WIDTH+100),
@@ -54,5 +64,24 @@ class Enemy(pygame.sprite.Sprite):
     def update(self):
         self.rect.move_ip(-self.speed, 0)
         # Remove sprite if it goes out of the screen
+        if self.rect.right < 0:
+            self.kill()
+
+
+
+class Cloud(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.surf = pygame.image.load("assets/cloud.png").convert()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        self.rect = self.surf.get_rect(
+            center=(
+                r.randint(WIDTH+20, WIDTH+100),
+                r.randint(0, HEIGHT)
+            )
+        )
+
+    def update(self):
+        self.rect.move_ip(-5, 0)
         if self.rect.right < 0:
             self.kill()
