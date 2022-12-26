@@ -1,1 +1,1 @@
-The tutorial I followed: https://realpython.com/pygame-a-primer/
+The project I remixed: https://github.com/realpython/pygame-primer
